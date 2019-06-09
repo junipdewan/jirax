@@ -17,13 +17,24 @@ steps:
 - task: CopyFiles@2
   inputs:
     SourceFolder: '$(System.DefaultWorkingDirectory)'
-    Contents: |
-      jirax-macos
-      jirax-linux
-      jirax-win.exe
+    Contents: './binary/*'
     TargetFolder: '$(Build.ArtifactStagingDirectory)'
+- task: GitHubRelease@0
+  inputs:
+    gitHubConnection: 'grantjunipdewan'
+    repositoryName: '$(Build.Repository.Name)'
+    condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/v')
+    action: 'edit'
+    target: '$(Build.SourceVersion)'
+    tagSource: 'auto'
+    tag: '$(draftReleaseTag)'
+    title: 'First Release'
+    isDraft: false
+    assets: '$(Build.ArtifactStagingDirectory)/*.zip'
+    assetUploadMode: 'delete'
 - task: PublishBuildArtifacts@1
   inputs:
+    displayName: 'Publish Artifact: drop'
     PathtoPublish: '$(System.DefaultWorkingDirectory)'
 
 - script: |
